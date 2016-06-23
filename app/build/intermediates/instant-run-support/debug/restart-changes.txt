@@ -1,0 +1,5 @@
+CHANGED,D:\AndroidStudioProjects\weatherforecast\app\build\intermediates\transforms\instantRun\debug\folders\1\5\main\com\weather\user\weatherforecast\Weather_Main$PlaceholderFragment$3.class
+CHANGED,D:\AndroidStudioProjects\weatherforecast\app\build\intermediates\transforms\instantRun\debug\folders\1\5\main\com\weather\user\weatherforecast\Weather_Main$SectionsPagerAdapter.class
+CHANGED,D:\AndroidStudioProjects\weatherforecast\app\build\intermediates\transforms\instantRun\debug\folders\1\5\main\com\weather\user\weatherforecast\Weather_Main$PlaceholderFragment$2.class
+CHANGED,D:\AndroidStudioProjects\weatherforecast\app\build\intermediates\transforms\instantRun\debug\folders\1\5\main\com\weather\user\weatherforecast\Weather_Main$PlaceholderFragment$4.class
+CHANGED,D:\AndroidStudioProjects\weatherforecast\app\build\intermediates\transforms\instantRun\debug\folders\1\5\main\com\weather\user\weatherforecast\Weather_Main$PlaceholderFragment.class

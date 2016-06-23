@@ -97,6 +97,36 @@ public class Weather_Main extends AppCompatActivity {
             }
         });*/
 
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels)
+            {
+
+            }
+
+            @Override
+            public void onPageSelected(int position)
+            {
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state)
+            {
+                //state參數:0是空閒；1是滑動中；2是load完成
+                if(state == 2)
+                {
+                    //強制重新載入，使第一次顯示資料正常
+                    int temp;
+                    temp = mViewPager.getCurrentItem();
+                    mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+                    mViewPager = (ViewPager) findViewById(R.id.container);
+                    mViewPager.setAdapter(mSectionsPagerAdapter);
+                    mViewPager.setCurrentItem(temp);
+                }
+            }
+        });
+
     }
 
 
@@ -133,20 +163,17 @@ public class Weather_Main extends AppCompatActivity {
          * fragment.
          */
         private static final String ARG_SECTION_NUMBER = "section_number";
-         TextView textView;
+        private TextView textView;
         private Button delete_btn;
-        RssNews[] Arr_RssNews;
-        String trgUrl= "http://www.cwb.gov.tw/rss/forecast/36_08.xml";
+        private RssNews[] Arr_RssNews;
+        private String trgUrl= "http://www.cwb.gov.tw/rss/forecast/36_08.xml";
         private ListView data_ListView;
-        ArrayList<String> mNames = new ArrayList<String>();
-        ArrayList<String> mNames2 = new ArrayList<String>();
-        ArrayList<String> file_list = new ArrayList<String>();
-        ListAdapter myAdapter;
-        ListAdapter myAdapter2;
+        private ArrayList<String> mNames = new ArrayList<String>();
+        private ArrayList<String> mNames2 = new ArrayList<String>();
+        private ListAdapter myAdapter;
+        private ListAdapter myAdapter2;
         int idx = 999;
-        /*private File weatherdata;
-        private File weatherfolder;
-        String datapath ;*/
+
         private MyDB mydb = null;
 
         public PlaceholderFragment()
@@ -172,22 +199,12 @@ public class Weather_Main extends AppCompatActivity {
             textView = (TextView) rootView.findViewById(R.id.section_label);
             data_ListView = (ListView) rootView.findViewById(R.id.Data_listView);
             delete_btn = (Button) rootView.findViewById(R.id.Delete_btn);
-            /*weatherdata = Environment.getExternalStorageDirectory();
-            datapath = weatherdata.getPath() + File.separator + "Weather_Temp";    //設定暫存檔存放位置
-            weatherfolder = new File(datapath);*/
             mydb = new MyDB(getActivity());
-
-            /*if(!weatherfolder.exists())
-            {
-                weatherfolder.mkdir();
-            }*/
 
             if(getArguments().getInt(ARG_SECTION_NUMBER) == 1)
             {
+                //第一頁顯示
                 delete_btn.setVisibility(View.GONE);
-                textView.setText("一周天氣");
-                //if (weatherfolder.listFiles().length < 1) {
-                    // 在Handler上發出「要更新版面」的訊息
                     new Thread() {
                         @Override
                         public void run() {
@@ -201,8 +218,9 @@ public class Weather_Main extends AppCompatActivity {
             }
             else
             {
-                textView.setText("DB Data");
-                //mNames2 = new ArrayList<String>();
+                //第二頁顯示
+                textView.setText("DB data");
+                mNames2 = new ArrayList<String>();
                 delete_btn.setVisibility(View.VISIBLE);
                 SQLiteDatabase db = mydb.getReadableDatabase();
                 String[] columns = {_ID,"data"};
@@ -214,12 +232,11 @@ public class Weather_Main extends AppCompatActivity {
                     String data = cursor.getString(1);
                     mNames2.add(data);
                 }
-                    myAdapter2 = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_single_choice,mNames2);
-                    data_ListView.setAdapter(myAdapter2);
-                if(data_ListView.getCount()<1) {
-                    delete_btn.setText("更新");
-                }
+                //simple_list_item_single_choice,mNames2設定LISTVIEW顯示樣式
+                myAdapter2 = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_single_choice,mNames2);
+                data_ListView.setAdapter(myAdapter2);
 
+                //設定LISTVIEW選擇樣式
                 data_ListView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
                 data_ListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
                 {
@@ -228,7 +245,6 @@ public class Weather_Main extends AppCompatActivity {
                     {
                         AbsListView list = (AbsListView)adapterView;
                         idx = list.getCheckedItemPosition();
-                        delete_btn.setText("DELETE");
                     }
                 });
             }
@@ -238,42 +254,25 @@ public class Weather_Main extends AppCompatActivity {
                 @Override
                 public void onClick(View arg0)
                 {
-                    if(data_ListView.getCount()<1)
+                    //刪除按鈕事件
+                    if(idx != 999)
                     {
-
                         SQLiteDatabase db = mydb.getReadableDatabase();
-                        String[] columns = {_ID,"data"};
+                        String[] columns = {_ID, "data"};
+                        ArrayList<String> db_ID = new ArrayList<String>();
+                        ArrayList<String> db_data = new ArrayList<String>();
                         Cursor cursor = db.query("WEATHER", columns, null, null, null, null, null);
                         getActivity().startManagingCursor(cursor);
-                        while (cursor.moveToNext())
-                        {
+                        while (cursor.moveToNext()) {
                             int id = cursor.getInt(0);
                             String data = cursor.getString(1);
-                            mNames2.add(data);
+                            db_ID.add("" + id);
+                            db_data.add(data);
                         }
+                        db.delete("WEATHER", _ID + "=" + db_ID.get(mNames2.indexOf(db_data.get(idx))), null);
+                        mNames2.remove(idx);
                         data_ListView.setAdapter(myAdapter2);
-                    }
-                    else
-                    {
-                        if(idx != 999)
-                        {
-                            SQLiteDatabase db = mydb.getReadableDatabase();
-                            String[] columns = {_ID, "data"};
-                            ArrayList<String> db_ID = new ArrayList<String>();
-                            ArrayList<String> db_data = new ArrayList<String>();
-                            Cursor cursor = db.query("WEATHER", columns, null, null, null, null, null);
-                            getActivity().startManagingCursor(cursor);
-                            while (cursor.moveToNext()) {
-                                int id = cursor.getInt(0);
-                                String data = cursor.getString(1);
-                                db_ID.add("" + id);
-                                db_data.add(data);
-                            }
-                            db.delete("WEATHER", _ID + "=" + db_ID.get(mNames2.indexOf(db_data.get(idx))), null);
-                            mNames2.remove(idx);
-                            data_ListView.setAdapter(myAdapter2);
-                            idx = 999;
-                        }
+                        idx = 999;
                     }
                 }
             });
@@ -295,7 +294,6 @@ public class Weather_Main extends AppCompatActivity {
                             mNames = Arr_RssNews[1].getdescription();
                             mNames.trimToSize();
                             GetFile();
-                            //dis_set();
                         }
                         break;
                 }
@@ -304,6 +302,7 @@ public class Weather_Main extends AppCompatActivity {
 
         public RssNews[] getRssNews()
         {
+            //連線到RSS並下載資料
             if (trgUrl == null)
                 return null;
             try
@@ -337,58 +336,27 @@ public class Weather_Main extends AppCompatActivity {
 
         public void GetFile()
         {
-                /*FileWriter fw = new FileWriter(weatherfolder+"/"+textView.getText().subSequence(1,4) + ".txt", false);
-                BufferedWriter bw = new BufferedWriter(fw); //將BufferedWeiter與FileWrite物件做連結*/
-                SQLiteDatabase db = mydb.getWritableDatabase();
-                ContentValues Value = new ContentValues();
-                ContentValues test = new ContentValues();
-                SQLiteDatabase dbr = mydb.getReadableDatabase();
-                String[] columns = {_ID,"data"};
-                Cursor cursor = dbr.query("WEATHER", columns, null, null, null, null, null);
-                getActivity().startManagingCursor(cursor);
+            //從下載資料放進資料庫中，並將下載資料顯示於第一頁中
+            SQLiteDatabase db = mydb.getWritableDatabase();
+            ContentValues Value = new ContentValues();
+            ContentValues test = new ContentValues();
+            SQLiteDatabase dbr = mydb.getReadableDatabase();
+            String[] columns = {_ID,"data"};
+            Cursor cursor = dbr.query("WEATHER", columns, null, null, null, null, null);
+            getActivity().startManagingCursor(cursor);
 
-                for(int i=0;i<mNames.size();i++)
-                {
-                    Value.put("data",mNames.get(i));
-                    //bw.write(mNames.get(i));
-                    if(mNames.get(i).length()>6)
-                        //bw.newLine();
-                    if(cursor.getCount() < 1)
-                    {
-                        db.insert("WEATHER", null, Value);
-                    }
-                }
-                mNames2 = mNames;
-                myAdapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_1,mNames);
-                myAdapter2 = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_single_choice,mNames2);
-                //data_ListView.setAdapter(myAdapter2);
-                data_ListView.setAdapter(myAdapter);
-               // bw.close();
-        }
-
-        public void dis_set()
-        {
-            mNames = new ArrayList<String>();
-            try
+            for(int i=0;i<mNames.size();i++)
             {
-                //讀取文件檔路徑
-                /*FileReader mFileReader = new FileReader(datapath + "/" + weatherfolder.list()[0]);
-                BufferedReader mBufferedReader = new BufferedReader(mFileReader);
-                String mTextLine = mBufferedReader.readLine();
-                //一行一行取出文字字串裝入String裡，直到沒有下一行文字停止跳出
-                while (mTextLine!=null)
+                Value.put("data",mNames.get(i));
+                if(mNames.get(i).length()>6)
+                if(cursor.getCount() < 1)
                 {
-                    mNames.add(mTextLine);
-                    mTextLine = mBufferedReader.readLine();
+                    db.insert("WEATHER", null, Value);
                 }
-                myAdapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_1,mNames);
-                data_ListView.setAdapter(myAdapter);*/
             }
-            catch(Exception e)
-            {
-            }
+            myAdapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_list_item_1,mNames);
+            data_ListView.setAdapter(myAdapter);
         }
-
     }
 
     /**

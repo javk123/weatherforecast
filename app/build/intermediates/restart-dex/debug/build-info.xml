@@ -4,29 +4,37 @@
     api-level="19"
     density="xhdpi"
     format="7"
-    timestamp="20383338700171" >
+    timestamp="10006978263114"
+    verifier="COMPATIBLE" >
 
     <task
         name="javac"
-        duration="0" />
+        duration="118" />
     <task
         name="instant-run-dex"
-        duration="0" />
+        duration="352" />
     <task
         name="instant-run-transform"
-        duration="0" />
+        duration="17" />
     <task
         name="verifier"
-        duration="0" />
+        duration="4" />
 
     <artifact
-        location="D:\AndroidStudioProjects\weatherforecast\app\build\outputs\apk\app-debug.apk"
-        type="MAIN" />
+        location="D:\AndroidStudioProjects\weatherforecast\app\build\intermediates\reload-dex\debug\classes.dex"
+        type="RELOAD_DEX" />
 
-    <build timestamp="20383338700171" >
+    <build timestamp="9906960470838" >
         <artifact
             location="D:\AndroidStudioProjects\weatherforecast\app\build\outputs\apk\app-debug.apk"
             type="MAIN" />
+    </build>
+    <build
+        timestamp="10006978263114"
+        verifier="COMPATIBLE" >
+        <artifact
+            location="D:\AndroidStudioProjects\weatherforecast\app\build\intermediates\reload-dex\debug\classes.dex"
+            type="RELOAD_DEX" />
     </build>
 
 </instant-run>
